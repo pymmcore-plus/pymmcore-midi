@@ -126,7 +126,7 @@ class MidiDevice:
         try:
             self._input: mido.ports.BaseInput = mido.open_input(device_name)
             self._output: mido.ports.BaseOutput = mido.open_output(device_name)
-        except OSError as e:
+        except OSError as e:  # pragma: no cover
             raise OSError(
                 f"Could not open input device {device_name!r}. "
                 f"Available device names are: {set(mido.get_input_names())}"
