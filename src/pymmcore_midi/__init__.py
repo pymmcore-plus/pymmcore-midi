@@ -1,4 +1,4 @@
-"""Midi control for microscopes using pymmcore"""
+"""Midi control for microscopes using pymmcore."""
 
 from importlib.metadata import PackageNotFoundError, version
 
@@ -8,3 +8,8 @@ except PackageNotFoundError:
     __version__ = "uninstalled"
 __author__ = "Talley Lambert"
 __email__ = "talley.lambert@gmail.com"
+
+from ._device import MidiDevice
+from ._xtouch import XTouchMini
+
+__all__ = ["MidiDevice", "XTouchMini"]

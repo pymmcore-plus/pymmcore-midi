@@ -30,7 +30,7 @@ classifiers = [
     "License :: OSI Approved :: BSD License",
     "Typing :: Typed",
 ]
-dependencies = []
+dependencies = ["psygnal>=0.9.0", "mido"]
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov"]
