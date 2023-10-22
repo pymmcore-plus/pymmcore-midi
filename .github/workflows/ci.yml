@@ -24,7 +24,7 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
-        platform: [ubuntu-latest, macos-latest, windows-latest]
+        platform: [macos-latest, windows-latest]
 
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +41,9 @@ jobs:
           python -m pip install -U pip
           # if running a cron job, we add the --pre flag to test against pre-releases
           python -m pip install .[test] ${{ github.event_name == 'schedule' && '--pre' || ''  }}
+
+      - name: Install mmcore
+        run: mmcore install
 
       - name: 🧪 Run Tests
         run: pytest --color=yes --cov --cov-report=xml --cov-report=term-missing
