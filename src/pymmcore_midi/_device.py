@@ -1,5 +1,4 @@
 from typing import (
-    TYPE_CHECKING,
     Iterable,
     Iterator,
     Mapping,
@@ -7,10 +6,8 @@ from typing import (
 )
 
 import mido
+import mido.backends
 from psygnal import Signal
-
-if TYPE_CHECKING:
-    import mido.backends
 
 T = TypeVar("T")
 
@@ -74,6 +71,9 @@ class Knob:
             "control_change", channel=self._channel, control=self._control, value=val
         )
         self._output.send(msg)
+
+    def __repr__(self) -> str:
+        return f"Knob({self._control!r})"
 
 
 class Buttons(_Map[Button]):
@@ -173,3 +173,10 @@ class MidiDevice:
             self._buttons[message.note].pressed.emit()
         elif message.type == "note_off":
             self._buttons[message.note].released.emit()
+
+    def reset(self) -> None:
+        """Set all knobs/sliders to 0 and make sure buttons are unpressed."""
+        for knob in self._knobs.values():
+            knob.set_value(0)
+        for button in self._buttons.values():
+            button.release()

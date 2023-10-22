@@ -1,31 +1,12 @@
 from unittest.mock import MagicMock
 
 import mido
-import pytest
 
 from pymmcore_midi import XTouchMini
 
 
-@pytest.fixture
-def mock_xtouch(monkeypatch: pytest.MonkeyPatch) -> None:
-    mock_in = MagicMock()
-    mock_out = MagicMock()
-
-    def _mock_open_input(device_name: str) -> mido.ports.BaseInput:
-        if device_name == "X-TOUCH MINI":
-            return mock_in
-
-    def _mock_open_output(device_name: str) -> mido.ports.BaseOutput:
-        if device_name == "X-TOUCH MINI":
-            return mock_out
-
-    monkeypatch.setattr(mido, "open_input", _mock_open_input)
-    monkeypatch.setattr(mido, "open_output", _mock_open_output)
-
-    yield mock_in, mock_out
-
-
 def test_x_touch_output(mock_xtouch) -> None:
+    """Test sending messages to the X-Touch Mini."""
     _, mock_out = mock_xtouch
     mini = XTouchMini()
     assert len(mini.knob) == 18
@@ -57,10 +38,12 @@ def test_x_touch_output(mock_xtouch) -> None:
     msg = mido.Message("control_change", channel=10, control=4, value=20, time=0)
     mock_out.send.assert_called_once_with(msg)
 
+    mini.reset()
     mini.close()
 
 
 def test_x_touch_intput(mock_xtouch) -> None:
+    """Test receiving messages from the X-Touch Mini."""
     mock_in, _ = mock_xtouch
     mini = XTouchMini()
     knob4 = mini.knob[4]
