@@ -33,7 +33,7 @@ classifiers = [
 dependencies = ["psygnal>=0.9.0", "mido[ports-rtmidi]"]
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-cov", "pymmcore_plus"]
+test = ["pytest", "pytest-cov", "pymmcore_plus", "pyyaml"]
 dev = [
     "black",
     "ipython",
