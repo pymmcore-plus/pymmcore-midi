@@ -27,16 +27,18 @@ class XTouchMini(MidiDevice):
     Layer A:
     --------
     [ 1] [ 2] [ 3] [ 4] [ 5] [ 6] [ 7] [ 8]   (Knobs)
-    [ 9]                                      (Slider)
+                                              [ 9]  (Slider)
 
     Layer B:
     --------
-    [10]                                      (Slider)
     [11] [12] [13] [14] [15] [16] [17] [18]   (Knobs)
+                                              [11]  (Slider)
     """
 
+    DEVICE_NAME = "X-TOUCH MINI"
+
     def __init__(self) -> None:
-        super().__init__("X-TOUCH MINI", range(48), range(1, 19))
+        super().__init__(self.DEVICE_NAME, range(48), range(1, 19))
 
     @property
     def rewind(self) -> Button:

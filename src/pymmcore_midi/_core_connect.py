@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-import contextlib
 import warnings
-from typing import TYPE_CHECKING, Any, Callable, cast
+from typing import TYPE_CHECKING, Any, Callable
 
 if TYPE_CHECKING:
     from pymmcore_plus import CMMCorePlus
 
-    from pymmcore_midi import Button, Knob, MidiDevice
+    from pymmcore_midi import Button, Knob
 
 
 def connect_knob_to_property(
@@ -138,43 +137,5 @@ def connect_button_to_property(
     def disconnect() -> None:
         button.released.disconnect(_update_core_value)
         core.events.propertyChanged.disconnect(_update_button_value)
-
-    return disconnect
-
-
-def connect_device_to_core(
-    device: MidiDevice, core: CMMCorePlus, connections: list[tuple[str, int, str, str]]
-) -> Callable[[], None]:
-    disconnecters: list[Callable] = []
-    for type_, idx, dev, prop in connections:
-        if type_ not in ("button", "knob"):  # pragma: no cover
-            raise ValueError(f"Unknown type {type_}")
-
-        midi_obj: Knob | Button = getattr(device, type_)[idx]
-        if dev == "Core":
-            # special case.... look for core method
-            if not hasattr(core, prop):  # pragma: no cover
-                raise ValueError(f"MMCore object has no method {prop!r}")
-            method = getattr(core, prop)
-            if type_ == "button":
-                btn = cast("Button", midi_obj)
-                btn.pressed.connect(method)
-                disconnecters.append(lambda o=btn, m=method: o.pressed.disconnect(m))
-            elif type_ == "knob":
-                # NOTE: connecting a callback to a knob may be a bad idea
-                knb = cast("Knob", midi_obj)
-                knb.changed.connect(method)
-                disconnecters.append(lambda o=knb, m=method: o.changed.disconnect(m))
-        elif type_ == "button":
-            d = connect_button_to_property(cast("Button", midi_obj), core, dev, prop)
-            disconnecters.append(d)
-        elif type_ == "knob":
-            d = connect_knob_to_property(cast("Knob", midi_obj), core, dev, prop)
-            disconnecters.append(d)
-
-    def disconnect() -> None:
-        for d in disconnecters:
-            with contextlib.suppress(Exception):
-                d()
 
     return disconnect

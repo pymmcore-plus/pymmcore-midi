@@ -1,8 +1,9 @@
 from unittest.mock import MagicMock
 
 import mido
+import pytest
 
-from pymmcore_midi import XTouchMini
+from pymmcore_midi import MidiDevice, XTouchMini
 
 
 def test_x_touch_output(mock_xtouch) -> None:
@@ -68,3 +69,9 @@ def test_x_touch_intput(mock_xtouch) -> None:
     mock.assert_called_once()
 
     mini.close()
+
+
+def test_cls_detect(mock_xtouch):
+    assert isinstance(MidiDevice.from_name("X-TOUCH MINI"), XTouchMini)
+    with pytest.raises(KeyError):
+        MidiDevice.from_name("X-Tasdfdsf")

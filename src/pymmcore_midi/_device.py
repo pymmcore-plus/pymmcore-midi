@@ -1,15 +1,18 @@
-from typing import (
-    Iterable,
-    Iterator,
-    Mapping,
-    TypeVar,
-)
+from __future__ import annotations
+
+import os
+from typing import TYPE_CHECKING, ClassVar, Iterable, Iterator, Mapping, TypeVar
 
 import mido
 import mido.backends
 from psygnal import Signal
 
+if TYPE_CHECKING:
+    from typing import Self
+
+
 T = TypeVar("T")
+DEBUG = os.getenv("PYMMCORE_MIDI_DEBUG", "0") == "1"
 
 
 # just a read-only mapping
@@ -117,11 +120,21 @@ class MidiDevice:
         The ids of the knobs on the device. (These correspond to the control numbers.)
     """
 
+    DEVICE_NAME: ClassVar[str]
+
+    @classmethod
+    def from_name(cls, device_name: str) -> Self:
+        for subcls in cls.__subclasses__():
+            if getattr(subcls, "DEVICE_NAME", None) == device_name:
+                return subcls()  # type: ignore
+        raise KeyError(f"No Subclass implemented for device_name: {device_name!r}")
+
     def __init__(
         self,
         device_name: str,
         button_ids: Iterable[int] = (),
         knob_ids: Iterable[int] = (),
+        debug: bool = DEBUG,
     ):
         try:
             self._input: mido.ports.BaseInput = mido.open_input(device_name)
@@ -136,6 +149,7 @@ class MidiDevice:
         self.device_name = device_name
         self._buttons = Buttons(button_ids, self._output)
         self._knobs = Knobs(knob_ids, self._output)
+        self._debug = debug
 
     @property
     def knob(self) -> Knobs:
@@ -167,6 +181,8 @@ class MidiDevice:
         self._output.close()
 
     def _on_msg(self, message: mido.Message) -> None:
+        if self._debug:
+            print(self.device_name, message)
         if message.type == "control_change":
             self._knobs[message.control].changed.emit(message.value)
         elif message.type == "note_on":
