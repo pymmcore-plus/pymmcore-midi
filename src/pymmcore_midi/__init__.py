@@ -13,6 +13,7 @@ from ._core_connect import (
     connect_knob_to_property,
 )
 from ._device import Button, Knob, MidiDevice
+from ._map_spec import DeviceMap, Mapping
 from ._xtouch import XTouchMini
 
 __all__ = [
@@ -20,7 +21,9 @@ __all__ = [
     "connect_button_to_property",
     "connect_device_to_core",
     "connect_knob_to_property",
+    "DeviceMap",
     "Knob",
+    "Mapping",
     "MidiDevice",
     "XTouchMini",
 ]
