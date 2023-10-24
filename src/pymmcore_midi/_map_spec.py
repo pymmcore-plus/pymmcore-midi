@@ -8,12 +8,14 @@ from typing import TYPE_CHECKING, Callable, Literal, Sequence
 
 from pymmcore_plus import CMMCorePlus
 
+from pymmcore_midi import Button
+
 from ._device import MidiDevice
 
 if TYPE_CHECKING:
-    from pymmcore_midi import Button, Knob
+    from pymmcore_midi import Knob
 
-MsgType = Literal["note_on", "note_off", "control_change", "button", "knob"]
+MsgType = Literal["note_on", "note_off", "control_change"]
 VALID_MESSAGE_TYPES = {"note_on", "note_off", "control_change", "button", "knob"}
 TYPE_ALIASES: dict[str, MsgType] = {
     "button": "note_on",
@@ -26,21 +28,21 @@ TYPE_ALIASES: dict[str, MsgType] = {
 class Mapping:
     message_type: MsgType
     control_id: int
-    device_label: str | None
-    property_name: str | None
+    device_label: str | None = None
+    property_name: str | None = None
     core_method: str | None = None
 
     def __post_init__(self) -> None:
         self.message_type = TYPE_ALIASES.get(self.message_type, self.message_type)
         if self.message_type not in VALID_MESSAGE_TYPES:
-            raise ValueError(
+            raise ValueError(  # pragma: no cover
                 "message_type must be one of "
                 f"{', '.join(VALID_MESSAGE_TYPES)}, not {self.message_type!r}"
             )
         if self.core_method is None and (
             self.property_name is None or self.device_label is None
         ):
-            raise ValueError(
+            raise ValueError(  # pragma: no cover
                 "Either core_method must be specified or both "
                 "property_name and device_label must be specified."
             )
@@ -60,24 +62,41 @@ class Mapping:
         """
         from ._core_connect import connect_button_to_property, connect_knob_to_property
 
-        if self.message_type == "control_change":
-            func: Callable[..., Callable] = connect_knob_to_property
-        else:
-            func = connect_button_to_property
         midi_obj = self.device_obj(device)
 
-        return func(midi_obj, core, self.device_label, self.property_name)
+        if self.core_method is not None:
+            # special case.... look for core method
+            method = getattr(core, self.core_method, None)
+            if not callable(method):  # pragma: no cover
+                raise ValueError(f"MMCore object has no method {self.core_method!r}")
+
+            if isinstance(midi_obj, Button):
+                signal = midi_obj.pressed
+            else:
+                # NOTE: connecting a callback to a knob may be a bad idea
+                # without checking the method signature?
+                signal = midi_obj.changed
+            signal.connect(method, check_nargs=False)
+            return lambda: signal.disconnect(method)
+
+        else:
+            if self.message_type == "control_change":
+                func: Callable[..., Callable] = connect_knob_to_property
+            else:
+                func = connect_button_to_property
+
+            return func(midi_obj, core, self.device_label, self.property_name)
 
     @classmethod
     def from_obj(cls, obj: Mapping | dict | Sequence[str]) -> Mapping:
         """Initialize Mapping from an object."""
         if isinstance(obj, Mapping):
-            obj = asdict(obj)
+            obj = asdict(obj)  # pragma: no cover
         if isinstance(obj, dict):
             return cls(**obj)
         elif isinstance(obj, (list, tuple)):
             return cls(*obj)
-        raise TypeError(
+        raise TypeError(  # pragma: no cover
             "Mapping.from_obj() requires a Mapping, dict, or tuple, not "
             f"{type(obj).__name__}"
         )
@@ -107,7 +126,7 @@ class DeviceMap:
                 raise ImportError("You must install pyyaml to use yaml files.") from e
 
             return cls(**yaml.safe_load(data))
-        raise ValueError(
+        raise ValueError(  # pragma: no cover
             f"File type not recognized. Must be .json, .yaml, or .yml, not {path!r}"
         )
 
