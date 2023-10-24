@@ -49,7 +49,7 @@ dev_map.connect_to_core(core)
 ```
 
 Now when you move a knob or press a button on your MIDI device, the corresponding
-property/method will be called on the `CMMCorePlus` object.
+property/method will be called on the `CMMCorePlus` object. :tada:
 
 ## Debugging/Development
 
