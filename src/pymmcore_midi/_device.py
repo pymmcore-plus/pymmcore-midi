@@ -1,16 +1,15 @@
+from __future__ import annotations
+
 import os
-from typing import (
-    ClassVar,
-    Iterable,
-    Iterator,
-    Mapping,
-    Self,
-    TypeVar,
-)
+from typing import TYPE_CHECKING, ClassVar, Iterable, Iterator, Mapping, TypeVar
 
 import mido
 import mido.backends
 from psygnal import Signal
+
+if TYPE_CHECKING:
+    from typing import Self
+
 
 T = TypeVar("T")
 DEBUG = os.getenv("PYMMCORE_MIDI_DEBUG", "0") == "1"
