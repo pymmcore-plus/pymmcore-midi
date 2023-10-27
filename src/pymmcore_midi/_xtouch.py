@@ -68,7 +68,7 @@ class XTouchMini(MidiDevice):
         return self._buttons[23]
 
     def do_a_little_dance(self, speed: float = 0.04, repeat: int = 2) -> None:
-        """Flash the device's lights."""
+        """Do something nifty to indicate that the device is connected."""
         for _ in range(repeat):
             for i in chain(range(8, 16), reversed(range(16, 24))):
                 self._buttons[i].blink()

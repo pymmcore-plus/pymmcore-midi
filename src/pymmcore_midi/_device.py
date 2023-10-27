@@ -212,6 +212,5 @@ class MidiDevice:
         for button in self._buttons.values():
             button.release()
 
-    def do_a_little_dance(self, *args, **kwargs) -> None:
-        """Flash the device's lights."""
-        ...
+    def do_a_little_dance(self) -> None:
+        """Do something nifty to indicate that the device is connected."""
