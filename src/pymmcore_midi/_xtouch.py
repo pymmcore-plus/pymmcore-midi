@@ -1,3 +1,6 @@
+import time
+from itertools import chain
+
 from ._device import Button, MidiDevice
 
 
@@ -63,3 +66,10 @@ class XTouchMini(MidiDevice):
     @property
     def record(self) -> Button:
         return self._buttons[23]
+
+    def do_a_little_dance(self, speed: float = 0.04, repeat: int = 2) -> None:
+        """Flash the device's lights."""
+        for _ in range(repeat):
+            for i in chain(range(8, 16), reversed(range(16, 24))):
+                self._buttons[i].blink()
+                time.sleep(speed)

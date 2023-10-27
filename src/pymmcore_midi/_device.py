@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import os
+import time
+from threading import Thread
 from typing import TYPE_CHECKING, ClassVar, Iterable, Iterator, Mapping, TypeVar
 
 import mido
@@ -56,6 +58,18 @@ class Button:
         """Send a note_off message."""
         msg = mido.Message("note_off", channel=self._channel, note=self._note)
         self._output.send(msg)
+
+    def blink(self, speed: float = 0.05, repeat: int = 1) -> None:
+        """Blink the button on and off in another thread."""
+
+        def _blink(repeat: int = repeat) -> None:
+            for _ in range(repeat):
+                self.press()
+                time.sleep(speed)
+                self.release()
+                time.sleep(speed)
+
+        Thread(target=_blink, daemon=True).start()
 
 
 class Knob:
@@ -150,6 +164,7 @@ class MidiDevice:
         self._buttons = Buttons(button_ids, self._output)
         self._knobs = Knobs(knob_ids, self._output)
         self._debug = debug
+        Thread(target=self.do_a_little_dance, daemon=True).start()
 
     @property
     def knob(self) -> Knobs:
@@ -196,3 +211,7 @@ class MidiDevice:
             knob.set_value(0)
         for button in self._buttons.values():
             button.release()
+
+    def do_a_little_dance(self, *args, **kwargs) -> None:
+        """Flash the device's lights."""
+        ...
