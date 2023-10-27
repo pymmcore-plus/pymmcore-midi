@@ -1,0 +1,17 @@
+device_name: X-TOUCH MINI
+mappings:
+  - [button, 8, Camera, AllowMultiROI]
+  - [button, 9, Camera, Binning]
+  - [knob, 2, Camera, Gain]
+  - [knob, 9, Camera, CCDTemperature]
+  - message_type: control_change
+    control_id: 1
+    device_label: Camera
+    property_name: Exposure
+  - message_type: button
+    control_id: 22
+    core_method: snap
+  - message_type: knob
+    control_id: 17
+    core_method: setAutoFocusOffset
+  
