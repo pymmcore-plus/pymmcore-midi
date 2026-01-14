@@ -54,6 +54,16 @@ Now when you move a knob or press a button on your MIDI device, the
 corresponding property/method will be updated/called on the `CMMCorePlus`
 object. :tada:
 
+## Example
+
+From this repo, run:
+
+```bash
+python example.py
+```
+
+and adjust `mini.yml` to assign buttons
+
 ## Debugging/Development
 
 Use the environment variable `PYMMCORE_MIDI_DEBUG=1` to print out the MIDI
