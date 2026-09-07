@@ -14,11 +14,11 @@ from ._xtouch import XTouchMini
 
 __all__ = [
     "Button",
-    "connect_button_to_property",
-    "connect_knob_to_property",
     "DeviceMap",
     "Knob",
     "Mapping",
     "MidiDevice",
     "XTouchMini",
+    "connect_button_to_property",
+    "connect_knob_to_property",
 ]
